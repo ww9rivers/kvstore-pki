@@ -19,6 +19,14 @@ Requires Python 3.9+ and `cryptography>=40`.
 pip install .            # or: pip install -e '.[dev]' for tests
 ```
 
+Or run it straight from a checkout with no install, via `bin/kvstore-pki`. It picks
+`.venv/bin/python3` if present (e.g. `python3 -m venv --system-site-packages .venv && .venv/bin/pip install cryptography`),
+else `$KVSTORE_PKI_PYTHON`, else `python3` on `PATH`:
+
+```shell
+./bin/kvstore-pki check
+```
+
 ## Usage
 
 Run as root (files are chowned to `--owner`, default `splunk`) or as the `splunk` user.

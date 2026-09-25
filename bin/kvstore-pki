@@ -1,0 +1,28 @@
+#!/bin/sh
+# Run kvstore-pki straight from this checkout, no `pip install` required.
+#
+# Picks an interpreter in this order:
+#   1. ./.venv/bin/python3   (created with e.g. `python3 -m venv --system-site-packages .venv`)
+#   2. $KVSTORE_PKI_PYTHON, if set
+#   3. python3 on PATH
+# then runs the package with PYTHONPATH pointed at this checkout, so an
+# editable/real install is never required on the Splunk host.
+
+set -e
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+if [ -x "$ROOT/.venv/bin/python3" ]; then
+    PYTHON="$ROOT/.venv/bin/python3"
+elif [ -n "$KVSTORE_PKI_PYTHON" ]; then
+    PYTHON="$KVSTORE_PKI_PYTHON"
+else
+    PYTHON="python3"
+fi
+
+if ! "$PYTHON" -c "import cryptography" >/dev/null 2>&1; then
+    echo "kvstore-pki: $PYTHON has no 'cryptography' module (pip install cryptography>=40, or create $ROOT/.venv)" >&2
+    exit 2
+fi
+
+PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}" exec "$PYTHON" -m kvstore_pki "$@"
